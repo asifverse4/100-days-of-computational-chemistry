@@ -1,0 +1,8 @@
+numpy
+scipy
+pandas
+matplotlib
+rdkit
+ase
+pytest
+ruff
