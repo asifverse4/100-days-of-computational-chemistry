@@ -2,7 +2,7 @@
 
 One small, working, documented tool per day for chemistry students and researchers: spectroscopy, DFT/xTB, docking/MD, synthesis analysis, and ML.
 
-![streak](https://img.shields.io/badge/streak-day%200%2F100-blue)
+![streak](https://img.shields.io/badge/streak-day%202%2F100-blue)
 
 ## Quick start
 ```bash
@@ -21,6 +21,7 @@ python tools/new_day.py 2 smiles-to-3d      # scaffolds days/day02-smiles-to-3d/
 | Day | Topic | Folder |
 |-----|-------|--------|
 | 1 | Repo setup | [`template/`](template/) |
+| 2 | Smiles To 3D | [`days/day02-smiles-to-3d/`](days/day02-smiles-to-3d/) |
 
 ## Contributing
 Issues and PRs are welcome. See `CONTRIBUTING.md`.
