@@ -21,10 +21,11 @@ def smiles_to_mol(smiles: str, seed: int = 42, max_iters: int = 2000):
     if mol is None:
         raise ValueError(f"Invalid SMILES: {smiles!r}")
     mol = Chem.AddHs(mol)
-    if AllChem.EmbedMolecule(mol, randomSeed=seed) != 0:
-        # fall back to random coordinates for difficult molecules
-        if AllChem.EmbedMolecule(mol, randomSeed=seed, useRandomCoords=True) != 0:
-            raise RuntimeError(f"3D embedding failed for {smiles!r}")
+    # fall back to random coordinates for difficult molecules
+    if AllChem.EmbedMolecule(mol, randomSeed=seed) != 0 and AllChem.EmbedMolecule(
+        mol, randomSeed=seed, useRandomCoords=True
+    ) != 0:
+        raise RuntimeError(f"3D embedding failed for {smiles!r}")
     if AllChem.MMFFHasAllMoleculeParams(mol):
         AllChem.MMFFOptimizeMolecule(mol, maxIters=max_iters)
         props = AllChem.MMFFGetMoleculeProperties(mol)
