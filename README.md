@@ -1,32 +1,18 @@
-# 100 Days of Computational Chemistry
+# Day NN: <Tool name>
 
-One small, working, documented tool per day for chemistry students and researchers: spectroscopy, DFT/xTB, docking/MD, synthesis analysis, and ML.
+**What:** one sentence on what it does.
+**Why:** the real lab or research problem it solves.
 
-![streak](https://img.shields.io/badge/streak-day%200%2F100-blue)
-
-## Quick start
+## Usage
 ```bash
-git clone https://github.com/asifverse4/100-days-of-computational-chemistry
-cd 100-days-of-computational-chemistry
-pip install -r requirements.txt
-python tools/new_day.py 2 smiles-to-3d      # scaffolds days/day02-smiles-to-3d/
+python tool.py example/input.csv
 ```
 
-## How it works
-- Each day lives in `days/dayNN-name/` with a README, a script, and a tiny example.
-- `ROADMAP.md` has the full 100-day plan.
-- Every tenth day ends in a mini release.
+## Method
+Equations, assumptions, and references.
 
-## Progress
-| Day | Topic | Folder |
-|-----|-------|--------|
-| 1 | Repo setup | [`template/`](template/) |
+## Example output
+Add a small image or table here.
 
-## Contributing
-Issues and PRs are welcome. See `CONTRIBUTING.md`.
-
-## Citation
-If a tool helps your work, please cite via `CITATION.cff`.
-
-## License
-MIT
+## Limitations
+What it does not handle.
