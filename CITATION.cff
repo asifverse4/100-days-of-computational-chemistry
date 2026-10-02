@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "100 Days of Computational Chemistry"
+authors:
+  - family-names: Raza
+    given-names: Asif
+repository-code: "https://github.com/asifverse4/100-days-of-computational-chemistry"
+license: MIT
