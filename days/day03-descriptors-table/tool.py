@@ -81,7 +81,7 @@ def main() -> int:
         out = Path(args.output)
         out.parent.mkdir(parents=True, exist_ok=True)
         with out.open("w", newline="") as fh:
-            writer = csv.DictWriter(fh, fieldnames=COLUMNS)
+            writer = csv.DictWriter(fh, fieldnames=COLUMNS, lineterminator="\n")
             writer.writeheader()
             writer.writerows(rows)
         print(f"Wrote {len(rows)} molecules to {out}")
