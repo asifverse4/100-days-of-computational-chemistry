@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 from rdkit import Chem
-from rdkit.Chem import QED, Crippen, Descriptors, Lipinski, rdMolDescriptors
+from rdkit.Chem import QED, Crippen, Descriptors, rdMolDescriptors
 
 COLUMNS = [
     "name", "smiles", "formula", "mw", "logp", "tpsa", "hbd", "hba",
@@ -29,8 +29,9 @@ def describe(smiles: str, name: str) -> dict:
         raise ValueError(f"Invalid SMILES: {smiles!r}")
     mw = Descriptors.MolWt(mol)
     logp = Crippen.MolLogP(mol)
-    hbd = Lipinski.NumHDonors(mol)
-    hba = Lipinski.NumHAcceptors(mol)
+    # Lipinski's original definitions: HBD = N-H + O-H groups, HBA = N + O atoms
+    hbd = rdMolDescriptors.CalcNumLipinskiHBD(mol)
+    hba = rdMolDescriptors.CalcNumLipinskiHBA(mol)
     violations = sum([mw > 500, logp > 5, hbd > 5, hba > 10])
     return {
         "name": name,
@@ -53,7 +54,11 @@ def describe(smiles: str, name: str) -> dict:
 def read_entries(arg: str) -> list[tuple[str, str]]:
     """Read (smiles, name) pairs from a .smi file, or treat arg as one SMILES."""
     src = Path(arg)
-    if not src.is_file():
+    try:
+        is_file = src.is_file()
+    except OSError:  # very long SMILES can exceed the filename length limit
+        is_file = False
+    if not is_file:
         return [(arg, "molecule")]
     entries = []
     for i, line in enumerate(src.read_text().splitlines(), 1):
@@ -81,7 +86,7 @@ def main() -> int:
         out = Path(args.output)
         out.parent.mkdir(parents=True, exist_ok=True)
         with out.open("w", newline="") as fh:
-            writer = csv.DictWriter(fh, fieldnames=COLUMNS)
+            writer = csv.DictWriter(fh, fieldnames=COLUMNS, lineterminator="\n")
             writer.writeheader()
             writer.writerows(rows)
         print(f"Wrote {len(rows)} molecules to {out}")
