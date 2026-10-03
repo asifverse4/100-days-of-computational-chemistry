@@ -10,4 +10,8 @@ jobs:
           python-version: "3.11"
       - run: pip install ruff pytest numpy scipy pandas matplotlib rdkit
       - run: ruff check .
-      - run: pytest -q --no-header || [ $? -eq 5 ]
+      - name: Run tests per day folder (avoids tool.py module name clashes)
+        run: |
+          for d in days/*/; do
+            pytest -q --no-header "$d" || [ $? -eq 5 ] || exit 1
+          done
