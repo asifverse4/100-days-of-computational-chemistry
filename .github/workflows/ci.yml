@@ -11,3 +11,4 @@ jobs:
       - run: pip install ruff pytest numpy scipy pandas matplotlib
       - run: ruff check .
       - run: pytest -q --no-header || [ $? -eq 5 ]
+         - run: pip install ruff pytest numpy scipy pandas matplotlib rdkit
