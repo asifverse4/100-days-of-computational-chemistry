@@ -123,7 +123,7 @@ Still stuck? Open an [issue](https://github.com/asifverse4/100-days-of-computati
 | 4 | xTB Batch | [`days/day04-xtb-batch/`](days/day04-xtb-batch/) |
 
 ## Contributing
-Issues and PRs are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+Issues and PRs are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Citation
 If a tool helps your work, please cite it via [`CITATION.cff`](CITATION.cff). GitHub's "Cite this repository" button gives you BibTeX and APA.
