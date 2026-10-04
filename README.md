@@ -23,7 +23,7 @@ python tools/new_day.py 2 smiles-to-3d      # scaffolds days/day02-smiles-to-3d/
 | 1 | Repo setup | [`template/`](template/) |
 | 2 | Smiles To 3D | [`days/day02-smiles-to-3d/`](days/day02-smiles-to-3d/) |
 | 3 | Descriptors Table | [`days/day03-descriptors-table/`](days/day03-descriptors-table/) |
-| 4 | Xtb Batch | [`days/day04-xtb-batch/`](days/day04-xtb-batch/) |
+| 4 | xTB Batch | [`days/day04-xtb-batch/`](days/day04-xtb-batch/) |
 
 ## Contributing
 Issues and PRs are welcome. See `CONTRIBUTING.md`.

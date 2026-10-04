@@ -12,3 +12,6 @@ __pycache__/
 *.xtbrestart
 *.dcd
 *.xtc
+
+# xTB batch outputs
+xtb_results/
