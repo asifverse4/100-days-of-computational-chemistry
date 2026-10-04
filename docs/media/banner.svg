@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-label="100 Days of Computational Chemistry">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1d2e"/>
+      <stop offset="1" stop-color="#14344f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="300" rx="16" fill="url(#bg)"/>
+  <!-- benzene ring with substituents -->
+  <g stroke="#5fd4c4" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="170,80 222,110 222,170 170,200 118,170 118,110"/>
+    <circle cx="170" cy="140" r="30" stroke-width="3" opacity="0.7"/>
+    <line x1="222" y1="110" x2="274" y2="80"/>
+    <line x1="274" y1="80" x2="326" y2="110"/>
+    <line x1="118" y1="170" x2="66" y2="200"/>
+  </g>
+  <g fill="#f4b860">
+    <circle cx="326" cy="110" r="11"/>
+    <circle cx="66" cy="200" r="11"/>
+  </g>
+  <g font-family="Segoe UI, Helvetica, Arial, sans-serif" fill="#ffffff">
+    <text x="400" y="132" font-size="52" font-weight="700">100 Days of</text>
+    <text x="400" y="190" font-size="52" font-weight="700">Computational Chemistry</text>
+    <text x="400" y="232" font-size="22" fill="#b8d4e3">One small, working, documented tool per day</text>
+  </g>
+  <text x="400" y="266" font-family="Consolas, Menlo, monospace" font-size="18" fill="#5fd4c4">RDKit  |  xTB  |  DFT  |  docking  |  spectroscopy  |  ML</text>
+</svg>
