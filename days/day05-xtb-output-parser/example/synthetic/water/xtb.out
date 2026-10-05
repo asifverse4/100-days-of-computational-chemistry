@@ -1,0 +1,32 @@
+SYNTHETIC DEMO FILE: written by hand in the format xtb prints. The numbers are NOT real xTB results.
+Replace this folder with the output of a real run (for example from Day 4).
+
+ * xtb version 6.7.1 (demo) compiled by 'demo' on 2026-01-01
+          :  # atoms                       3                      :
+          :  Hamiltonian                  GFN2-xTB                :
+
+   #   Z          covCN         q      C6AA      α(0)
+   1   8 O        2.000    -0.500     10.000     5.000
+   2   1 H        1.000     0.250      3.000     2.000
+   3   1 H        1.000     0.250      3.000     2.000
+
+ Orbital Energies and Occupations
+ #    Occupation            Energy/Eh            Energy/eV
+-------------------------------------------------------------
+    4        2.0000           -0.5000000 (HOMO)    -13.6057
+    5                         -0.0500000 (LUMO)     -1.3606
+
+ *** GEOMETRY OPTIMIZATION CONVERGED AFTER 4 ITERATIONS ***
+         :::::::::::::::::::::::::::::::::::::::::::::::::::::
+         ::                     SUMMARY                     ::
+         :::::::::::::::::::::::::::::::::::::::::::::::::::::
+         :: total energy              -5.000000000000 Eh    ::
+         :: gradient norm              0.000500000000 Eh/a0 ::
+         :: HOMO-LUMO gap             12.245100000000 eV    ::
+         ::.................................................::
+         :: SCC energy                -5.100000000000 Eh    ::
+         :: -> dispersion             -0.000100000000 Eh    ::
+         :: repulsion energy           0.100000000000 Eh    ::
+         :: total charge               0.000000000000 e     ::
+         :::::::::::::::::::::::::::::::::::::::::::::::::::::
+normal termination of xtb

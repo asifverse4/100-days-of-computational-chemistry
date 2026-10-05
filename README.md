@@ -8,7 +8,7 @@
 Python · RDKit · xTB · free and open source (MIT)
 
 [![CI](https://github.com/asifverse4/100-days-of-computational-chemistry/actions/workflows/ci.yml/badge.svg)](https://github.com/asifverse4/100-days-of-computational-chemistry/actions/workflows/ci.yml)
-![streak](https://img.shields.io/badge/streak-day%204%2F100-blue)
+![streak](https://img.shields.io/badge/streak-day%205%2F100-blue)
 ![python](https://img.shields.io/badge/python-3.11%2B-3776AB)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -21,6 +21,7 @@ Each day adds one tool you can run in a minute: spectroscopy, DFT/xTB, docking/M
 | 2 | [SMILES to 3D](days/day02-smiles-to-3d/) | SMILES or a list of SMILES to optimized 3D `.xyz` files (RDKit, MMFF94/UFF) | `python tool.py example/input.smi --outdir out` |
 | 3 | [Descriptors table](days/day03-descriptors-table/) | SMILES list to a CSV of MW, logP, TPSA, HBD/HBA, QED and Lipinski violations | `python tool.py example/input.smi -o descriptors.csv` |
 | 4 | [xTB batch](days/day04-xtb-batch/) | Runs GFN-xTB optimizations on many molecules and collects energies, gaps and status in one CSV | `python tool.py example/input.smi --outdir out` |
+| 5 | [xTB output parser](days/day05-xtb-output-parser/) | Collects energies, HOMO-LUMO gaps and atomic charges from xtb outputs into CSV, with conformer ranking | `python tool.py xtb_results -o summary.csv` |
 
 New tools land every day. The full plan is in [ROADMAP.md](ROADMAP.md).
 
@@ -79,6 +80,7 @@ python tool.py example/input.smi -o out.csv   # a list, writes a CSV
 | turn a SMILES into a 3D structure for xTB, ORCA or Psi4 | [Day 2](days/day02-smiles-to-3d/) |
 | screen a list of molecules before docking or QSAR | [Day 3](days/day03-descriptors-table/) |
 | pre-optimize many structures with xTB | [Day 4](days/day04-xtb-batch/) |
+| pull energies, gaps and charges out of xTB output files | [Day 5](days/day05-xtb-output-parser/) |
 | plot UV-vis, Tauc, fluorescence or FTIR data | Days 11-19, coming |
 | set up ORCA / Psi4 jobs and read DFT results | Days 21-30, coming |
 | dock ligands and analyze MD | Days 31-40, coming |
@@ -121,6 +123,7 @@ Still stuck? Open an [issue](https://github.com/asifverse4/100-days-of-computati
 | 2 | Smiles To 3D | [`days/day02-smiles-to-3d/`](days/day02-smiles-to-3d/) |
 | 3 | Descriptors Table | [`days/day03-descriptors-table/`](days/day03-descriptors-table/) |
 | 4 | xTB Batch | [`days/day04-xtb-batch/`](days/day04-xtb-batch/) |
+| 5 | xTB Output Parser | [`days/day05-xtb-output-parser/`](days/day05-xtb-output-parser/) |
 
 ## Contributing
 Issues and PRs are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
