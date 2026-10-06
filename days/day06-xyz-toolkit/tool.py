@@ -1,16 +1,19 @@
 """Day 6: XYZ file toolkit.
 
 Small, dependency-free helpers for the structure files you juggle before and
-after QM runs: inspect, split, merge, center and convert (xyz, pdb, Turbomole coord).
+after QM runs: inspect, split, merge, center, align and convert
+(xyz, pdb, Turbomole coord).
 
 Usage:
     python tool.py info example/ethanol.xyz
     python tool.py split trajectory.xyz --outdir frames
     python tool.py merge example/ethanol.xyz example/benzene.xyz -o all.xyz
     python tool.py center example/ethanol.xyz --mode mass -o ethanol_com.xyz
+    python tool.py align example/ethanol.xyz shifted.xyz -o aligned.xyz --rmsd
     python tool.py convert example/ethanol.xyz -o ethanol.pdb
 """
 import argparse
+import math
 import re
 import sys
 from dataclasses import dataclass, field
@@ -223,6 +226,170 @@ def bounding_box(frame: Frame) -> list[float]:
     return [max(c[k] for c in frame.coords) - min(c[k] for c in frame.coords) for k in range(3)]
 
 
+def _dot(a: list[float], b: list[float]) -> float:
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+
+def _cross(a: list[float], b: list[float]) -> list[float]:
+    return [
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0],
+    ]
+
+
+def _norm(v: list[float]) -> float:
+    return math.sqrt(_dot(v, v))
+
+
+def _normalized(v: list[float], eps: float = 1e-12) -> list[float] | None:
+    n = _norm(v)
+    if n <= eps:
+        return None
+    return [x / n for x in v]
+
+
+def _transpose(m: list[list[float]]) -> list[list[float]]:
+    return [[m[j][i] for j in range(3)] for i in range(3)]
+
+
+def _mat_mul(a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
+    return [[sum(a[i][k] * b[k][j] for k in range(3)) for j in range(3)] for i in range(3)]
+
+
+def _vec_mat_mul(v: list[float], m: list[list[float]]) -> list[float]:
+    return [sum(v[k] * m[k][j] for k in range(3)) for j in range(3)]
+
+
+def _det3(m: list[list[float]]) -> float:
+    return (
+        m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
+        - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
+        + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
+    )
+
+
+def _identity3() -> list[list[float]]:
+    return [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+
+
+def _jacobi_eigen_symmetric3(a: list[list[float]], max_iter: int = 50, eps: float = 1e-12) -> tuple[list[float], list[list[float]]]:
+    """Eigenvalues and eigenvectors (columns) for a symmetric 3x3 matrix."""
+    m = [row[:] for row in a]
+    v = _identity3()
+    for _ in range(max_iter):
+        p, q = 0, 1
+        off = abs(m[0][1])
+        for i, j in ((0, 2), (1, 2)):
+            cur = abs(m[i][j])
+            if cur > off:
+                p, q, off = i, j, cur
+        if off < eps:
+            break
+        app, aqq, apq = m[p][p], m[q][q], m[p][q]
+        phi = 0.5 * math.atan2(2.0 * apq, aqq - app)
+        c, s = math.cos(phi), math.sin(phi)
+        for k in range(3):
+            mkp, mkq = m[k][p], m[k][q]
+            m[k][p], m[k][q] = c * mkp - s * mkq, s * mkp + c * mkq
+        for k in range(3):
+            mpk, mqk = m[p][k], m[q][k]
+            m[p][k], m[q][k] = c * mpk - s * mqk, s * mpk + c * mqk
+        m[p][q] = 0.0
+        m[q][p] = 0.0
+        for k in range(3):
+            vkp, vkq = v[k][p], v[k][q]
+            v[k][p], v[k][q] = c * vkp - s * vkq, s * vkp + c * vkq
+    eigvals = [m[i][i] for i in range(3)]
+    order = sorted(range(3), key=lambda i: eigvals[i], reverse=True)
+    vals = [eigvals[i] for i in order]
+    vecs = [[v[row][i] for i in order] for row in range(3)]
+    return vals, vecs
+
+
+def _orthonormal_columns(cols: list[list[float]]) -> list[list[float]]:
+    basis: list[list[float]] = []
+    candidates = cols + [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+    for cand in candidates:
+        w = cand[:]
+        for b in basis:
+            proj = _dot(w, b)
+            w = [w[i] - proj * b[i] for i in range(3)]
+        nw = _normalized(w)
+        if nw is not None:
+            basis.append(nw)
+        if len(basis) == 3:
+            break
+    return basis
+
+
+def _kabsch_rotation(mobile_centered: list[list[float]], reference_centered: list[list[float]]) -> list[list[float]]:
+    cov = [[0.0, 0.0, 0.0] for _ in range(3)]
+    for m, r in zip(mobile_centered, reference_centered):
+        for i in range(3):
+            for j in range(3):
+                cov[i][j] += m[i] * r[j]
+    ct_c = _mat_mul(_transpose(cov), cov)
+    eigvals, v = _jacobi_eigen_symmetric3(ct_c)
+    sigmas = [math.sqrt(max(ev, 0.0)) for ev in eigvals]
+    v_cols = [[v[row][i] for row in range(3)] for i in range(3)]
+    u_cols: list[list[float]] = []
+    for sigma, v_col in zip(sigmas, v_cols):
+        if sigma <= 1e-12:
+            continue
+        u_col = _normalized([sum(cov[i][k] * v_col[k] for k in range(3)) / sigma for i in range(3)])
+        if u_col is not None:
+            u_cols.append(u_col)
+    u_cols = _orthonormal_columns(u_cols)
+    if len(u_cols) != 3:
+        raise ValueError("cannot determine a stable rotation for these coordinates")
+    v_cols = _orthonormal_columns(v_cols)
+    u = [[u_cols[col][row] for col in range(3)] for row in range(3)]
+    vv = [[v_cols[col][row] for col in range(3)] for row in range(3)]
+    rot = _mat_mul(u, _transpose(vv))
+    if _det3(rot) < 0.0:
+        u_cols[2] = [-x for x in u_cols[2]]
+        u = [[u_cols[col][row] for col in range(3)] for row in range(3)]
+        rot = _mat_mul(u, _transpose(vv))
+    if _det3(rot) < 0.0:
+        raise ValueError("cannot determine a proper rotation for these coordinates")
+    return rot
+
+
+def rmsd(frame_a: Frame, frame_b: Frame) -> float:
+    if len(frame_a.coords) != len(frame_b.coords):
+        raise ValueError("RMSD requires the same atom count")
+    if not frame_a.coords:
+        raise ValueError("RMSD requires at least one atom")
+    total = 0.0
+    for ca, cb in zip(frame_a.coords, frame_b.coords):
+        total += sum((ca[k] - cb[k]) ** 2 for k in range(3))
+    return math.sqrt(total / len(frame_a.coords))
+
+
+def aligned_to(reference: Frame, mobile: Frame) -> Frame:
+    if len(reference.symbols) != len(mobile.symbols):
+        raise ValueError("frames differ in atom count")
+    if reference.symbols != mobile.symbols:
+        raise ValueError("frames differ in element order; align matching atoms in the same order")
+    if not reference.coords:
+        raise ValueError("cannot align an empty structure")
+    for c in reference.coords + mobile.coords:
+        if not all(math.isfinite(v) for v in c):
+            raise ValueError("coordinates must be finite numbers")
+    cref = centroid(reference)
+    cmob = centroid(mobile)
+    ref_centered = [[c[k] - cref[k] for k in range(3)] for c in reference.coords]
+    mob_centered = [[c[k] - cmob[k] for k in range(3)] for c in mobile.coords]
+    rot = _kabsch_rotation(mob_centered, ref_centered)
+    coords = []
+    for c in mobile.coords:
+        shifted = [c[k] - cmob[k] for k in range(3)]
+        turned = _vec_mat_mul(shifted, rot)
+        coords.append([turned[k] + cref[k] for k in range(3)])
+    return Frame(list(mobile.symbols), coords, mobile.comment)
+
+
 # ---------- commands ----------
 def cmd_info(args) -> None:
     frames = read_frames(Path(args.input))
@@ -280,6 +447,30 @@ def cmd_convert(args) -> None:
     print(f"[ok] {args.input} ({file_format(Path(args.input))}) -> {args.output} ({file_format(Path(args.output))})")
 
 
+def _pick_frame(frames: list[Frame], which: str, idx1: int) -> Frame:
+    if idx1 <= 0:
+        raise ValueError(f"{which} frame index must be >= 1")
+    if idx1 > len(frames):
+        raise ValueError(f"{which} file has {len(frames)} frame(s), cannot use frame {idx1}")
+    return frames[idx1 - 1]
+
+
+def cmd_align(args) -> None:
+    ref_path = Path(args.reference)
+    mob_path = Path(args.mobile)
+    ref_frame = _pick_frame(read_frames(ref_path), "reference", args.reference_frame)
+    mob_frame = _pick_frame(read_frames(mob_path), "mobile", args.mobile_frame)
+    aligned = aligned_to(ref_frame, mob_frame)
+    out = Path(args.output) if args.output else mob_path.with_name(f"{mob_path.stem}_aligned{mob_path.suffix}")
+    write_frames([aligned], out)
+    before = rmsd(ref_frame, mob_frame)
+    after = rmsd(ref_frame, aligned)
+    print(f"[ok] aligned {mob_path} frame {args.mobile_frame} to {ref_path} frame {args.reference_frame} -> {out}")
+    if args.rmsd:
+        print(f"  RMSD before alignment (A): {before:.6f}")
+        print(f"  RMSD after alignment (A):  {after:.6f}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="command", required=True)
@@ -311,6 +502,15 @@ def main() -> int:
     p.add_argument("input")
     p.add_argument("-o", "--output", required=True)
     p.set_defaults(func=cmd_convert)
+
+    p = sub.add_parser("align", help="align one structure onto a reference with a Kabsch fit")
+    p.add_argument("reference")
+    p.add_argument("mobile")
+    p.add_argument("-o", "--output", help="default: <mobile>_aligned.<ext>")
+    p.add_argument("--reference-frame", type=int, default=1, help="1-based frame index in reference file")
+    p.add_argument("--mobile-frame", type=int, default=1, help="1-based frame index in mobile file")
+    p.add_argument("--rmsd", action="store_true", help="print RMSD before and after alignment")
+    p.set_defaults(func=cmd_align)
 
     args = ap.parse_args()
     try:
