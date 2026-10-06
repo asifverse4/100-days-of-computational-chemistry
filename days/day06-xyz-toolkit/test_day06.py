@@ -145,6 +145,103 @@ def test_cli_convert_and_info(tmp_path, monkeypatch, capsys):
     assert "atoms: 9" in out and "formula: C2H6O" in out
 
 
+def test_kabsch_alignment_recovers_rigid_transform():
+    ref = tool.Frame(
+        ["C", "H", "H", "H"],
+        [[0.0, 0.0, 0.0], [1.0, 0.2, 0.1], [0.2, 1.1, 0.0], [0.1, 0.3, 1.2]],
+    )
+    rot = [
+        [0.0, -1.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0],
+    ]
+    shift = [2.0, -3.0, 1.5]
+    mobile_coords = [
+        [sum(c[k] * rot[k][j] for k in range(3)) + shift[j] for j in range(3)]
+        for c in ref.coords
+    ]
+    mobile = tool.Frame(list(ref.symbols), mobile_coords)
+    aligned = tool.aligned_to(ref, mobile)
+    assert tool.rmsd(ref, aligned) == pytest.approx(0.0, abs=1e-8)
+    assert tool.rmsd(ref, mobile) > 1.0
+
+
+def test_kabsch_alignment_reflection_handling():
+    ref = tool.Frame(
+        ["C", "H", "H", "H"],
+        [[0.0, 0.0, 0.0], [1.0, 0.2, 0.1], [0.2, 1.1, 0.0], [0.1, 0.3, 1.2]],
+    )
+    mobile = tool.Frame(
+        list(ref.symbols),
+        [[-x + 5.0, y - 2.0, z + 1.0] for x, y, z in ref.coords],  # mirror in x + translate
+    )
+    aligned = tool.aligned_to(ref, mobile)
+    before = tool.rmsd(ref, mobile)
+    after = tool.rmsd(ref, aligned)
+    assert after < before
+    assert after > 1e-4
+
+
+@pytest.mark.parametrize(
+    "ref,mobile,fragment",
+    [
+        (tool.Frame(["H"], [[0.0, 0.0, 0.0]]), tool.Frame(["H", "H"], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]), "atom count"),
+        (tool.Frame(["H"], [[0.0, 0.0, 0.0]]), tool.Frame(["He"], [[0.0, 0.0, 0.0]]), "element order"),
+    ],
+)
+def test_kabsch_alignment_rejects_incompatible_frames(ref, mobile, fragment):
+    with pytest.raises(ValueError, match=fragment):
+        tool.aligned_to(ref, mobile)
+
+
+def test_cli_align_rmsd_and_default_output(tmp_path, monkeypatch, capsys):
+    ref = tmp_path / "ref.xyz"
+    mob = tmp_path / "mob.xyz"
+    ref.write_text("2\nref\nC 0 0 0\nH 1 0 0\n")
+    mob.write_text("2\nmob\nC 2 5 0\nH 2 6 0\n")
+    assert run(monkeypatch, "align", ref, mob, "--rmsd") == 0
+    out_path = tmp_path / "mob_aligned.xyz"
+    aligned = tool.read_xyz(out_path.read_text())[0]
+    for got, expected in zip(aligned.coords, tool.read_xyz(ref.read_text())[0].coords):
+        assert got == pytest.approx(expected, abs=1e-8)
+    out = capsys.readouterr().out
+    assert "RMSD before alignment" in out
+    assert "RMSD after alignment" in out
+
+
+def test_cli_align_frame_selection_and_output_format(tmp_path, monkeypatch):
+    ref = tmp_path / "ref.xyz"
+    mob = tmp_path / "mob.xyz"
+    ref.write_text("1\nf1\nH 0 0 0\n1\nf2\nH 3 0 0\n")
+    mob.write_text("1\nm1\nH 10 0 0\n1\nm2\nH 13 0 0\n")
+    out = tmp_path / "aligned.pdb"
+    assert run(
+        monkeypatch,
+        "align",
+        ref,
+        mob,
+        "--reference-frame",
+        "2",
+        "--mobile-frame",
+        "2",
+        "-o",
+        out,
+    ) == 0
+    back = tool.read_pdb(out.read_text())[0]
+    assert back.coords[0][0] == pytest.approx(3.0, abs=1e-3)
+
+
+def test_cli_align_errors_return_2(tmp_path, monkeypatch, capsys):
+    ref = tmp_path / "r.xyz"
+    mob = tmp_path / "m.xyz"
+    ref.write_text("1\n\nH 0 0 0\n")
+    mob.write_text("2\n\nH 0 0 0\nH 1 0 0\n")
+    assert run(monkeypatch, "align", ref, mob, "-o", tmp_path / "x.xyz") == 2
+    assert "atom count" in capsys.readouterr().err
+    assert run(monkeypatch, "align", ref, ref, "--mobile-frame", "3", "-o", tmp_path / "x.xyz") == 2
+    assert "frame(s)" in capsys.readouterr().err
+
+
 def test_cli_errors_return_2(tmp_path, monkeypatch, capsys):
     assert run(monkeypatch, "info", tmp_path / "missing.xyz") == 2
     assert "cannot read" in capsys.readouterr().err
