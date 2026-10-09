@@ -8,7 +8,7 @@
 Python · RDKit · xTB · free and open source (MIT)
 
 [![CI](https://github.com/asifverse4/100-days-of-computational-chemistry/actions/workflows/ci.yml/badge.svg)](https://github.com/asifverse4/100-days-of-computational-chemistry/actions/workflows/ci.yml)
-![streak](https://img.shields.io/badge/streak-day%207%2F100-blue)
+![streak](https://img.shields.io/badge/streak-day%208%2F100-blue)
 ![python](https://img.shields.io/badge/python-3.11%2B-3776AB)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -24,6 +24,7 @@ Each day adds one tool you can run in a minute: spectroscopy, DFT/xTB, docking/M
 | 5 | [xTB output parser](days/day05-xtb-output-parser/) | Collects energies, HOMO-LUMO gaps and atomic charges from xtb outputs into CSV, with conformer ranking | `python tool.py xtb_results -o summary.csv` |
 | 6 | [XYZ toolkit](days/day06-xyz-toolkit/) | Inspect, split, merge, center and convert structure files (xyz, pdb, Turbomole coord) | `python tool.py info example/ethanol.xyz` |
 | 7 | [Unit converter](days/day07-unit-converter/) | Convert hartree, eV, kcal/mol, kJ/mol, cm-1, nm, THz and K, for one value or a CSV column | `python tool.py 450 nm ev` |
+| 8 | [Periodic table](days/day08-periodic-table/) | Look up element properties offline, list by group, period or block, and get molar masses of formulas | `python tool.py Fe` |
 
 New tools land every day. The full plan is in [ROADMAP.md](ROADMAP.md).
 
@@ -85,6 +86,7 @@ python tool.py example/input.smi -o out.csv   # a list, writes a CSV
 | pull energies, gaps and charges out of xTB output files | [Day 5](days/day05-xtb-output-parser/) |
 | split, merge, center or convert structure files | [Day 6](days/day06-xyz-toolkit/) |
 | convert energies, wavelengths and wavenumbers (Eh, eV, kcal/mol, nm, cm-1) | [Day 7](days/day07-unit-converter/) |
+| look up an element's mass, electronegativity or radius, or the molar mass of a formula | [Day 8](days/day08-periodic-table/) |
 | plot UV-vis, Tauc, fluorescence or FTIR data | Days 11-19, coming |
 | set up ORCA / Psi4 jobs and read DFT results | Days 21-30, coming |
 | dock ligands and analyze MD | Days 31-40, coming |
@@ -130,6 +132,7 @@ Still stuck? Open an [issue](https://github.com/asifverse4/100-days-of-computati
 | 5 | xTB Output Parser | [`days/day05-xtb-output-parser/`](days/day05-xtb-output-parser/) |
 | 6 | XYZ Toolkit | [`days/day06-xyz-toolkit/`](days/day06-xyz-toolkit/) |
 | 7 | Unit Converter | [`days/day07-unit-converter/`](days/day07-unit-converter/) |
+| 8 | Periodic Table | [`days/day08-periodic-table/`](days/day08-periodic-table/) |
 
 ## Contributing
 Issues and PRs are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
@@ -141,4 +144,4 @@ If a tool helps your work, please cite it via [`CITATION.cff`](CITATION.cff). Gi
 Everything here is free and will stay free. If it helps you, you can star the repo, share it, or [chip in](SUPPORT_THE_CREATOR.md).
 
 ## Credits and license
-Built on [RDKit](https://www.rdkit.org), [xTB](https://github.com/grimme-lab/xtb), [ASE](https://wiki.fysik.dtu.dk/ase/), NumPy, SciPy, pandas and matplotlib. Released under the [MIT License](LICENSE).
+Built on [RDKit](https://www.rdkit.org), [xTB](https://github.com/grimme-lab/xtb), [ASE](https://wiki.fysik.dtu.dk/ase/), NumPy, SciPy, pandas and matplotlib. Day 8's element data comes from [mendeleev](https://github.com/lmmentel/mendeleev) (MIT). Released under the [MIT License](LICENSE).
