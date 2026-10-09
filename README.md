@@ -8,7 +8,7 @@
 Python · RDKit · xTB · free and open source (MIT)
 
 [![CI](https://github.com/asifverse4/100-days-of-computational-chemistry/actions/workflows/ci.yml/badge.svg)](https://github.com/asifverse4/100-days-of-computational-chemistry/actions/workflows/ci.yml)
-![streak](https://img.shields.io/badge/streak-day%209%2F100-blue)
+![streak](https://img.shields.io/badge/streak-day%2010%2F100-blue)
 ![python](https://img.shields.io/badge/python-3.11%2B-3776AB)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -26,8 +26,9 @@ Each day adds one tool you can run in a minute: spectroscopy, DFT/xTB, docking/M
 | 7 | [Unit converter](days/day07-unit-converter/) | Convert hartree, eV, kcal/mol, kJ/mol, cm-1, nm, THz and K, for one value or a CSV column | `python tool.py 450 nm ev` |
 | 8 | [Periodic table](days/day08-periodic-table/) | Look up element properties offline, list by group, period or block, and get molar masses of formulas | `python tool.py Fe` |
 | 9 | [Molecule grid](days/day09-molecule-grid/) | Draw a SMILES list as a labelled grid image (PNG/SVG) with highlight, alignment and journal sizing | `python tool.py example/input.smi -o grid.png` |
+| 10 | [Index page](days/day10-index-page/) | Build `INDEX.md` from every day's README and check the repo conventions in CI | `python days/day10-index-page/tool.py --check` |
 
-New tools land every day. The full plan is in [ROADMAP.md](ROADMAP.md).
+New tools land every day. The generated list of every tool is [INDEX.md](INDEX.md), and the full plan is in [ROADMAP.md](ROADMAP.md).
 
 ## What it looks like
 
@@ -89,6 +90,7 @@ python tool.py example/input.smi -o out.csv   # a list, writes a CSV
 | convert energies, wavelengths and wavenumbers (Eh, eV, kcal/mol, nm, cm-1) | [Day 7](days/day07-unit-converter/) |
 | look up an element's mass, electronegativity or radius, or the molar mass of a formula | [Day 8](days/day08-periodic-table/) |
 | draw a set of molecules as a figure for a paper or slides | [Day 9](days/day09-molecule-grid/) |
+| see every tool on one page | [INDEX.md](INDEX.md) |
 | plot UV-vis, Tauc, fluorescence or FTIR data | Days 11-19, coming |
 | set up ORCA / Psi4 jobs and read DFT results | Days 21-30, coming |
 | dock ligands and analyze MD | Days 31-40, coming |
@@ -121,7 +123,7 @@ Still stuck? Open an [issue](https://github.com/asifverse4/100-days-of-computati
 
 - **One folder per day** under `days/dayNN-name/`: a `README.md` (what, why, how to run, limitations), a `tool.py`, a tiny `example/` and a test.
 - **One command starts a new day:** `python tools/new_day.py 5 xtb-output-parser` copies the template, fills in the title and adds a row to the table below.
-- **CI checks every push:** `ruff` for style, then `pytest` once per day folder.
+- **CI checks every push:** `ruff` for style, a structure check (every day has a README, tool and index entry), then `pytest` once per day folder.
 - **Every tenth day ends in a mini release** that bundles that phase into a small package.
 
 ## Progress
@@ -136,6 +138,7 @@ Still stuck? Open an [issue](https://github.com/asifverse4/100-days-of-computati
 | 7 | Unit Converter | [`days/day07-unit-converter/`](days/day07-unit-converter/) |
 | 8 | Periodic Table | [`days/day08-periodic-table/`](days/day08-periodic-table/) |
 | 9 | Molecule Grid | [`days/day09-molecule-grid/`](days/day09-molecule-grid/) |
+| 10 | Index Page | [`days/day10-index-page/`](days/day10-index-page/) |
 
 ## Contributing
 Issues and PRs are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).

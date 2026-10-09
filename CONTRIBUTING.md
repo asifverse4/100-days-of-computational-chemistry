@@ -4,3 +4,4 @@
 - One tool per folder under `days/`, with a README and a tiny example.
 - Run `ruff check .` and `pytest` before opening a PR.
 - Cite data sources and equations in the tool's README.
+- Run `python days/day10-index-page/tool.py` to refresh `INDEX.md`, and commit it. CI fails if it is stale.

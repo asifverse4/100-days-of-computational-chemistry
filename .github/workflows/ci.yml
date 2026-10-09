@@ -10,6 +10,8 @@ jobs:
           python-version: "3.11"
       - run: pip install ruff pytest numpy scipy pandas matplotlib rdkit
       - run: ruff check .
+      - name: Check repo structure and index
+        run: python days/day10-index-page/tool.py --check
       - name: Run tests per day folder (avoids tool.py module name clashes)
         run: |
           for d in days/*/; do

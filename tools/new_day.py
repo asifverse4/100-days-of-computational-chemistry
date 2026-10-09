@@ -23,3 +23,4 @@ text = text.replace("\n## Contributing", row + "\n## Contributing", 1) if row no
 text = re.sub(r"streak-day%20\d+%2F100", f"streak-day%20{n}%2F100", text)
 readme.write_text(text)
 print(f"Created {dest}")
+print("Next: write tool.py, a test and the README, then run python days/day10-index-page/tool.py")

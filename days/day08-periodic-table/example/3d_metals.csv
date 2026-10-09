@@ -1,0 +1,11 @@
+atomic_number,symbol,name,atomic_mass,group,period,block,category,electronegativity,covalent_radius_pm,vdw_radius_pm,electron_configuration,melting_point_k,boiling_point_k,density_g_cm3
+21,Sc,Scandium,44.955908,3,4,d,Transition metals,1.36,148.0,258.0,[Ar] 3d 4s2,1814.15,3109.15,2.99
+22,Ti,Titanium,47.867,4,4,d,Transition metals,1.54,136.0,246.0,[Ar] 3d2 4s2,1943.15,3560.15,4.506
+23,V,Vanadium,50.9415,5,4,d,Transition metals,1.63,134.0,242.0,[Ar] 3d3 4s2,2183.15,3680.15,6.0
+24,Cr,Chromium,51.9961,6,4,d,Transition metals,1.66,122.0,245.0,[Ar] 3d5 4s,2180.15,2944.15,7.15
+25,Mn,Manganese,54.938044,7,4,d,Transition metals,1.55,119.0,245.0,[Ar] 3d5 4s2,1519.15,2334.15,7.3
+26,Fe,Iron,55.845,8,4,d,Transition metals,1.83,116.0,244.0,[Ar] 3d6 4s2,1811.15,3134.15,7.87
+27,Co,Cobalt,58.933194,9,4,d,Transition metals,1.88,111.0,240.0,[Ar] 3d7 4s2,1768.15,3200.15,8.86
+28,Ni,Nickel,58.6934,10,4,d,Transition metals,1.91,110.0,240.0,[Ar] 3d8 4s2,1728.15,3186.15,8.9
+29,Cu,Copper,63.546,11,4,d,Transition metals,1.9,112.0,238.0,[Ar] 3d10 4s,1357.77,2833.15,8.96
+30,Zn,Zinc,65.38,12,4,d,Transition metals,1.65,118.0,239.0,[Ar] 3d10 4s2,692.68,1180.15,7.134

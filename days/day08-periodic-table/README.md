@@ -25,7 +25,7 @@ A typo gets a suggestion: `python tool.py iorn` prints `unknown element 'iorn'. 
 List elements with filters (they combine):
 ```bash
 python tool.py --group 17
-python tool.py --block d --period 4 -o 3d_metals.csv      # also saves every column as CSV
+python tool.py --block d --period 4 -o example/3d_metals.csv      # also saves every column as CSV
 python tool.py --category "noble gases"
 ```
 ```
