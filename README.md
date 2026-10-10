@@ -8,7 +8,7 @@
 Python · RDKit · xTB · free and open source (MIT)
 
 [![CI](https://github.com/asifverse4/100-days-of-computational-chemistry/actions/workflows/ci.yml/badge.svg)](https://github.com/asifverse4/100-days-of-computational-chemistry/actions/workflows/ci.yml)
-![streak](https://img.shields.io/badge/streak-day%2012%2F100-blue)
+![streak](https://img.shields.io/badge/streak-day%2013%2F100-blue)
 ![python](https://img.shields.io/badge/python-3.11%2B-3776AB)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -29,6 +29,7 @@ Each day adds one tool you can run in a minute: spectroscopy, DFT/xTB, docking/M
 | 10 | [Index page](days/day10-index-page/) | Build `INDEX.md` from every day's README and check the repo conventions in CI | `python days/day10-index-page/tool.py --check` |
 | 11 | [UV-vis plotter](days/day11-uv-vis-plotter/) | Plot UV-vis spectra and find peak position, height and width | `python tool.py example/synthetic_cqd.csv -o uvvis.png` |
 | 12 | [Tauc band gap](days/day12-tauc-band-gap/) | Tauc plot and optical band gap from absorbance or reflectance spectra, with fit uncertainty | `python tool.py example/synthetic_tauc.csv -o tauc.png` |
+| 13 | [Quantum yield](days/day13-quantum-yield/) | Relative fluorescence quantum yield by the IUPAC gradient or single-point method, with uncertainty | `python tool.py --ref ref.csv --sample s.csv --standard fluorescein --sample-solvent ethanol` |
 
 New tools land every day. The generated list of every tool is [INDEX.md](INDEX.md), and the full plan is in [ROADMAP.md](ROADMAP.md).
 
@@ -95,7 +96,8 @@ python tool.py example/input.smi -o out.csv   # a list, writes a CSV
 | see every tool on one page | [INDEX.md](INDEX.md) |
 | plot UV-vis spectra and find the absorption peaks | [Day 11](days/day11-uv-vis-plotter/) |
 | get an optical band gap from a UV-vis spectrum | [Day 12](days/day12-tauc-band-gap/) |
-| fluorescence, FTIR or XRD analysis | Days 13-19, coming |
+| get a fluorescence quantum yield against a standard | [Day 13](days/day13-quantum-yield/) |
+| PL spectra, FTIR or XRD analysis | Days 14-19, coming |
 | set up ORCA / Psi4 jobs and read DFT results | Days 21-30, coming |
 | dock ligands and analyze MD | Days 31-40, coming |
 
@@ -145,6 +147,7 @@ Still stuck? Open an [issue](https://github.com/asifverse4/100-days-of-computati
 | 10 | Index Page | [`days/day10-index-page/`](days/day10-index-page/) |
 | 11 | UV-vis Plotter | [`days/day11-uv-vis-plotter/`](days/day11-uv-vis-plotter/) |
 | 12 | Tauc Band Gap | [`days/day12-tauc-band-gap/`](days/day12-tauc-band-gap/) |
+| 13 | Quantum Yield | [`days/day13-quantum-yield/`](days/day13-quantum-yield/) |
 
 ## Contributing
 Issues and PRs are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).

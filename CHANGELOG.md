@@ -3,6 +3,7 @@
 ## Phase 2: Nanomaterial and spectroscopy data (Days 11-20, in progress)
 - Day 11: UV-vis plotter with peak detection.
 - Day 12: Tauc plot and optical band gap calculator.
+- Day 13: relative fluorescence quantum yield calculator (IUPAC equation, gradient and single-point methods).
 
 ## Phase 1: Foundations (Days 1-10)
 - Day 1: repo setup with license, README, requirements and the day template.
