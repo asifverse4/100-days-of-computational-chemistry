@@ -5,6 +5,7 @@
 - Day 12: Tauc plot and optical band gap calculator.
 - Day 13: relative fluorescence quantum yield calculator (IUPAC equation, gradient and single-point methods).
 - Day 14: PL spectrum plotter with excitation-dependent emission overlay and scatter masking.
+- Day 15: Stokes shift calculator (nm, cm-1, eV) with band selection.
 
 ## Phase 1: Foundations (Days 1-10)
 - Day 1: repo setup with license, README, requirements and the day template.
