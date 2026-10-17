@@ -270,3 +270,62 @@ def test_wide_window_for_a_very_broad_peak(tmp_path, monkeypatch, capsys):
     assert float(row[2]) == pytest.approx(6.0, rel=0.06) and float(row[4]) < 3.0  # size of a few nm
     assert run(monkeypatch, src, "--window", 0) == 2
     assert "--window must be positive" in capsys.readouterr().err
+
+
+# ---------- counting-statistics weights ----------
+def test_resolve_weights():
+    assert tool.resolve_weights("auto", np.array([0.0, 5.0, 120.0])) == "poisson"
+    assert tool.resolve_weights("auto", np.array([0.5, 5.0, 120.0])) == "none"  # counts per second, not counts
+    assert tool.resolve_weights("auto", np.array([-1.0, 5.0])) == "none"
+    assert tool.resolve_weights("none", np.array([1.0, 2.0])) == "none"
+    assert tool.resolve_weights("poisson", np.array([0.5])) == "poisson"
+
+
+def test_poisson_uncertainty_matches_the_scatter_of_repeated_fits():
+    """With raw counts the reported FWHM uncertainty should match the real scatter, and chi-square should be near 1."""
+    x = np.arange(35.0, 42.0, 0.02)
+    truth = 100 + 800 * tool.pseudo_voigt(x, 1.0, 38.47, 0.6, 0.5, 0.0, 0.0)
+    rng = np.random.default_rng(7)
+    widths, sigmas, chis = [], [], []
+    for _ in range(120):
+        fit = tool.fit_peak(tool.Pattern(x, rng.poisson(truth).astype(float)), 38.5, 36.0, 41.0, "poisson")
+        widths.append(fit["fwhm"])
+        sigmas.append(fit["fwhm_unc"])
+        chis.append(fit["chi2_red"])
+    assert np.mean(widths) == pytest.approx(0.6, abs=0.005)
+    assert np.mean(sigmas) == pytest.approx(np.std(widths), rel=0.25)
+    assert np.mean(chis) == pytest.approx(1.0, abs=0.1)
+
+
+def test_unweighted_fit_has_no_chi_square():
+    x = np.arange(35.0, 42.0, 0.02)
+    y = 100 + 800 * tool.pseudo_voigt(x, 1.0, 38.47, 0.6, 0.5, 0.0, 0.0)
+    assert tool.fit_peak(tool.Pattern(x, y), 38.5, 36.0, 41.0, "none")["chi2_red"] is None
+
+
+def test_poor_model_is_flagged_by_chi_square():
+    row = tool.analyze_peak(38.5, 0.5, LAMBDA, k=K, inst=0.0, method="none")
+    notes = tool.size_warnings([row], 0.0, [{"x0": 38.5, "r2": 0.99, "chi2_red": 8.2}])
+    assert any("counting statistics" in n and "8.2" in n for n in notes)
+    assert tool.size_warnings([row], 0.0, [{"x0": 38.5, "r2": 0.99, "chi2_red": 1.1}]) == []
+
+
+def test_cli_weights_auto_and_forced(tmp_path, monkeypatch, capsys):
+    assert run(monkeypatch, EXAMPLE, "--inst-fwhm", 0.08) == 0
+    assert "fit weights: poisson" in capsys.readouterr().out  # the example holds raw counts
+    data = np.loadtxt(EXAMPLE, delimiter=",", skiprows=1)
+    rates = write(tmp_path, "".join(f"{a:.2f},{b / 10:.3f}\n" for a, b in data), "rates.csv")
+    assert run(monkeypatch, rates, "--inst-fwhm", 0.08) == 0
+    assert "fit weights: none" in capsys.readouterr().out
+    assert run(monkeypatch, rates, "--inst-fwhm", 0.08, "--weights", "poisson") == 0
+    captured = capsys.readouterr()
+    assert "fit weights: poisson" in captured.out and "assumes raw counts" in captured.err
+
+
+def test_csv_has_chi_square_column(tmp_path, monkeypatch):
+    out = tmp_path / "r.csv"
+    assert run(monkeypatch, EXAMPLE, "--inst-fwhm", 0.08, "--csv", out) == 0
+    rows = list(csv.DictReader(out.open()))
+    assert "chi2_reduced" in rows[0] and all(0.5 < float(r["chi2_reduced"]) < 2.0 for r in rows)
+    assert run(monkeypatch, EXAMPLE, "--weights", "none", "--csv", out) == 0
+    assert next(iter(csv.DictReader(out.open())))["chi2_reduced"] == ""

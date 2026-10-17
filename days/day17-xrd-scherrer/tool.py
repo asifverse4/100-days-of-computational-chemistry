@@ -26,7 +26,7 @@ from scipy.signal import find_peaks, savgol_filter
 K_DEFAULT = 0.9
 MIN_POINTS = 10
 RESULT_COLUMNS = ["two_theta_deg", "d_angstrom", "fwhm_obs_deg", "fwhm_corrected_deg", "size_nm", "size_unc_nm",
-                  "eta", "r_squared"]
+                  "eta", "r_squared", "chi2_reduced"]
 
 # Wavelengths in angstrom, as listed by the UNSW XRD Lab (Tian, "Choice of X-ray sources") and the UNT lecture
 # notes on XRD (Golden): the K-alpha1 line and the K-alpha weighted average of the alpha1/alpha2 doublet.
@@ -166,8 +166,20 @@ def detect_peaks(p: Pattern, prominence: float = 0.05, smooth: int | None = None
     return [float(p.x[i]) for i in idx]
 
 
-def fit_peak(p: Pattern, center: float, lo: float, hi: float) -> dict:
-    """Pseudo-Voigt fit of the peak near `center` using only the points between lo and hi."""
+def resolve_weights(mode: str, y: np.ndarray) -> str:
+    """'poisson' or 'none'. With 'auto', non-negative whole numbers are taken to be raw counts."""
+    if mode != "auto":
+        return mode
+    counts = bool(np.all(y >= 0) and np.all(np.abs(y - np.round(y)) < 1e-6))
+    return "poisson" if counts else "none"
+
+
+def fit_peak(p: Pattern, center: float, lo: float, hi: float, weights: str = "none") -> dict:
+    """Pseudo-Voigt fit of the peak near `center` using only the points between lo and hi.
+
+    weights='poisson' weights each point by its counting uncertainty sqrt(counts) and reports uncertainties from
+    those absolute weights (valid for raw counts). weights='none' fits with equal weights and scales the
+    uncertainties by the scatter of the residuals; this is only a rough guide when the noise grows with the signal."""
     mask = (p.x >= lo) & (p.x <= hi)
     if mask.sum() < MIN_POINTS:
         raise ValueError(f"too few points around {center:.2f} degrees")
@@ -179,8 +191,11 @@ def fit_peak(p: Pattern, center: float, lo: float, hi: float) -> dict:
     guess = [amp0, center, w0, 0.5, base, 0.0]
     bounds = ([0, center - w0, float(np.median(np.diff(x))), 0.0, -np.inf, -np.inf],
               [np.inf, center + w0, hi - lo, 1.0, np.inf, np.inf])
+    poisson = weights == "poisson"
+    sigma = np.sqrt(np.maximum(y, 1.0)) if poisson else None
     try:
-        popt, pcov = curve_fit(pseudo_voigt, x, y, p0=guess, bounds=bounds, maxfev=20000)
+        popt, pcov = curve_fit(pseudo_voigt, x, y, p0=guess, bounds=bounds, sigma=sigma, absolute_sigma=poisson,
+                               maxfev=20000)
     except (RuntimeError, ValueError) as err:
         raise ValueError(f"the fit near {center:.2f} degrees did not converge") from err
     err = np.sqrt(np.clip(np.diag(pcov), 0, None))
@@ -188,12 +203,15 @@ def fit_peak(p: Pattern, center: float, lo: float, hi: float) -> dict:
     near = np.abs(x - popt[1]) <= 1.5 * popt[2]
     resid = y[near] - pseudo_voigt(x[near], *popt)
     ss_tot = float(np.sum((y[near] - y[near].mean()) ** 2)) if near.sum() > 2 else 0.0
+    dof = x.size - len(popt)
+    chi2_red = float(np.sum(((y - pseudo_voigt(x, *popt)) / sigma) ** 2) / dof) if poisson and dof > 0 else None
     return {"amp": float(popt[0]), "x0": float(popt[1]), "fwhm": float(popt[2]), "eta": float(popt[3]),
             "fwhm_unc": float(err[2]), "x0_unc": float(err[1]), "popt": popt, "window": (float(x.min()), float(x.max())),
+            "chi2_red": chi2_red,
             "r2": 1.0 - float(np.sum(resid**2)) / ss_tot if ss_tot > 0 else None}
 
 
-def fit_all(p: Pattern, centers: list[float], max_half_window: float = 3.0) -> list[dict]:
+def fit_all(p: Pattern, centers: list[float], max_half_window: float = 3.0, weights: str = "none") -> list[dict]:
     """Fit every peak in a window that stops halfway to the neighbouring peaks."""
     centers = sorted(centers)
     fits = []
@@ -202,7 +220,7 @@ def fit_all(p: Pattern, centers: list[float], max_half_window: float = 3.0) -> l
         lo = c - half if i == 0 else max(c - half, (centers[i - 1] + c) / 2)
         hi = c + half if i == len(centers) - 1 else min(c + half, (centers[i + 1] + c) / 2)
         try:
-            fits.append(fit_peak(p, c, lo, hi))
+            fits.append(fit_peak(p, c, lo, hi, weights))
         except ValueError as err:
             print(f"[warn] {err}; peak skipped", file=sys.stderr)
     return fits
@@ -221,6 +239,10 @@ def size_warnings(rows: list[dict], inst: float, fits: list[dict] | None) -> lis
             notes.append(f"peak at {tt} degrees is only {r['fwhm_obs_deg'] / inst:.1f} times the instrumental width: "
                          "the size is very sensitive to the instrument value")
     for f in fits or []:
+        if f.get("chi2_red") is not None and f["chi2_red"] > 3:
+            notes.append(f"the peak at {f['x0']:.2f} degrees is not described within counting statistics (reduced "
+                         f"chi-square {f['chi2_red']:.1f}): its uncertainty is too small. Check for overlapping peaks "
+                         "or a different peak shape")
         if f["r2"] is not None and f["r2"] < 0.8:
             notes.append(f"the fit of the peak at {f['x0']:.2f} degrees is poor (R2 = {f['r2']:.3f}): check for "
                          "overlapping peaks or a noisy pattern")
@@ -295,7 +317,8 @@ def write_csv(path: Path, rows: list[dict], fits: list[dict] | None) -> None:
                 "size_nm": "" if r["size_nm"] is None else round(r["size_nm"], 2),
                 "size_unc_nm": "" if r["size_unc_nm"] is None else round(r["size_unc_nm"], 2),
                 "eta": "" if fit is None else round(fit["eta"], 3),
-                "r_squared": "" if fit is None or fit["r2"] is None else round(fit["r2"], 5)})
+                "r_squared": "" if fit is None or fit["r2"] is None else round(fit["r2"], 5),
+                "chi2_reduced": "" if fit is None or fit.get("chi2_red") is None else round(fit["chi2_red"], 3)})
 
 
 def main() -> int:
@@ -315,6 +338,9 @@ def main() -> int:
     ap.add_argument("--smooth", type=int, default=None, metavar="N",
                     help="smoothing window used only to detect peaks (default: about 0.25 degrees, 0 turns it off)")
     ap.add_argument("--min-separation", type=float, default=0.5, help="minimum distance between peaks in degrees")
+    ap.add_argument("--weights", choices=["auto", "poisson", "none"], default="auto",
+                    help="point weights in the peak fits: poisson (raw counts), none, or auto (default: poisson if the "
+                         "intensities are whole numbers)")
     ap.add_argument("--window", type=float, default=3.0,
                     help="half-width in degrees of the fit window around each peak (default 3; widen it for very broad peaks)")
     ap.add_argument("--column", help="intensity column (header name or number)")
@@ -336,7 +362,7 @@ def main() -> int:
         wavelength = args.wavelength if args.wavelength is not None else WAVELENGTHS[args.source]
         if wavelength <= 0 or args.k <= 0 or args.inst_fwhm < 0:
             raise ValueError("--wavelength and --k must be positive and --inst-fwhm must not be negative")
-        pattern, fits = None, None
+        pattern, fits, weights = None, None, "none"
         if args.peak:
             if any(tt <= 0 or tt >= 180 or w <= 0 for tt, w in args.peak):
                 raise ValueError("peak positions must be between 0 and 180 degrees and widths must be positive")
@@ -359,7 +385,11 @@ def main() -> int:
                 raise ValueError("no peaks found; try a smaller --prominence or give --peak-positions")
             if args.window <= 0:
                 raise ValueError("--window must be positive")
-            fits = fit_all(pattern, centers, args.window)
+            weights = resolve_weights(args.weights, pattern.y)
+            if weights == "poisson" and args.weights == "poisson" and not np.all(np.abs(pattern.y - np.round(pattern.y)) < 1e-6):
+                print("[warn] --weights poisson assumes raw counts, but the intensities are not whole numbers",
+                      file=sys.stderr)
+            fits = fit_all(pattern, centers, args.window, weights)
             if not fits:
                 raise ValueError("no peak could be fitted")
             rows = [analyze_peak(f["x0"], f["fwhm"], wavelength, k=args.k, inst=args.inst_fwhm, method=args.correction,
@@ -372,7 +402,8 @@ def main() -> int:
         print(f"error: {err}", file=sys.stderr)
         return 2
 
-    print(f"wavelength {wavelength:g} A, K = {args.k:g}, instrumental FWHM {args.inst_fwhm:g} deg ({args.correction})")
+    fit_note = f", fit weights: {weights}" if fits else ""
+    print(f"wavelength {wavelength:g} A, K = {args.k:g}, instrumental FWHM {args.inst_fwhm:g} deg ({args.correction}){fit_note}")
     print(result_table(rows))
     sizes = [r["size_nm"] for r in rows if r["size_nm"] is not None]
     if len(sizes) >= 2:
