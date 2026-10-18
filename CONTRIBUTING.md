@@ -5,3 +5,4 @@
 - Run `ruff check .` and `pytest` before opening a PR.
 - Cite data sources and equations in the tool's README.
 - Run `python days/day10-index-page/tool.py` to refresh `INDEX.md`, and commit it. CI fails if it is stale.
+- Using an AI agent? Point it at `AGENTS.md`. The pull request template lists what to report, including what you did not verify.

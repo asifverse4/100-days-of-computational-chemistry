@@ -1,0 +1,44 @@
+name: New day or tool
+description: Ask for a new day of the 100-day plan, or a new tool. A coding agent reads AGENTS.md and follows it.
+title: "Day N: "
+labels: ["new-day"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The repo rules are in [AGENTS.md](https://github.com/asifverse4/100-days-of-computational-chemistry/blob/main/AGENTS.md). A person or a coding agent assigned to this issue should follow them.
+  - type: input
+    id: day
+    attributes:
+      label: Day number
+      description: The day in ROADMAP.md, for example 18.
+    validations:
+      required: true
+  - type: input
+    id: tool
+    attributes:
+      label: Tool
+      description: What the roadmap calls it, for example "TEM particle size distribution".
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What it should do
+      description: Inputs, outputs (tables, plots, CSV) and the method or equation.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources
+      description: Papers, standards or tables the method or any reference data come from. Say "none" if there are none.
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: Example data
+      description: Real data you can share, or write "synthetic" to have clearly labelled demo data generated.
+    validations:
+      required: false

@@ -162,3 +162,79 @@ def test_this_repo_passes_its_own_rules():
     index = tool.ROOT / "INDEX.md"
     assert index.is_file() and index.read_text() == tool.render_index(days), \
         "INDEX.md is out of date: run python days/day10-index-page/tool.py"
+
+
+# ---------- agent files ----------
+SKILL = """---
+name: demo-skill
+description: Does a thing. Use when asked to do the thing.
+license: MIT
+metadata:
+  version: "1.0"
+---
+# Demo skill
+"""
+
+
+def add_skill(root: Path, text: str = SKILL, folder: str = ".claude/skills", name: str = "demo-skill") -> Path:
+    path = root / folder / name / "SKILL.md"
+    path.parent.mkdir(parents=True)
+    path.write_text(text)
+    return path
+
+
+def test_parse_frontmatter_plain_folded_and_metadata():
+    fields, meta = tool.parse_frontmatter(SKILL)
+    assert fields["name"] == "demo-skill" and fields["license"] == "MIT" and meta == {"version": '"1.0"'}
+    folded = "---\nname: x\ndescription: >\n  first part\n  second part\n---\n"
+    assert tool.parse_frontmatter(folded)[0]["description"] == "first part second part"
+    assert tool.parse_frontmatter("no frontmatter here") is None
+    assert tool.parse_frontmatter("---\nname: x\n") is None  # never closed
+
+
+def test_valid_skill_has_no_errors(tmp_path):
+    assert tool.check_skill(add_skill(tmp_path), tmp_path) == []
+
+
+@pytest.mark.parametrize("text, fragment", [
+    ("# no frontmatter\n", "missing YAML frontmatter"),
+    (SKILL.replace("license: MIT", "license: MIT\nowner: me"), "unknown top-level field 'owner'"),
+    (SKILL.replace("name: demo-skill\n", ""), "missing name"),
+    (SKILL.replace("name: demo-skill", "name: Demo-Skill"), "lowercase letters"),
+    (SKILL.replace("name: demo-skill", "name: demo--skill"), "lowercase letters"),
+    (SKILL.replace("name: demo-skill", "name: " + "a" * 65), "lowercase letters"),
+    (SKILL.replace("name: demo-skill", "name: other-name"), "must match the folder name"),
+    (SKILL.replace("description: Does a thing. Use when asked to do the thing.\n", ""), "missing description"),
+    (SKILL.replace("Does a thing.", "x" * 1030), "limit is 1024"),
+    (SKILL.replace("metadata:\n  version: \"1.0\"", 'metadata: {version: "1.0"}'), "block mapping"),
+    (SKILL.replace('version: "1.0"', "version: 1.0"), "quoted number"),
+])
+def test_invalid_skills(tmp_path, text, fragment):
+    errors = tool.check_skill(add_skill(tmp_path, text), tmp_path)
+    assert any(fragment in e for e in errors), errors
+
+
+def test_check_agent_files(tmp_path):
+    errors, warnings = tool.check_agent_files(tmp_path)
+    assert errors == [] and any("AGENTS.md is missing" in w for w in warnings)
+    (tmp_path / "AGENTS.md").write_text("# Agents\n")
+    add_skill(tmp_path)
+    add_skill(tmp_path, SKILL.replace("demo-skill", "other-skill"), folder=".agents/skills", name="other-skill")
+    assert tool.check_agent_files(tmp_path) == ([], [])
+    add_skill(tmp_path, "broken", name="bad-skill")
+    errors, _ = tool.check_agent_files(tmp_path)
+    assert len(errors) == 1 and ".claude/skills/bad-skill/SKILL.md" in errors[0]
+
+
+def test_cli_agent_file_problems(tmp_path, monkeypatch, capsys):
+    make_repo(tmp_path, badge=3)
+    assert run(monkeypatch, "--root", tmp_path) == 0  # a missing AGENTS.md is only a warning
+    assert "AGENTS.md is missing" in capsys.readouterr().out
+    add_skill(tmp_path, "broken")
+    assert run(monkeypatch, "--root", tmp_path, "--check") == 1
+    assert "missing YAML frontmatter" in capsys.readouterr().out
+
+
+def test_this_repo_agent_files_are_valid():
+    errors, warnings = tool.check_agent_files(tool.ROOT)
+    assert errors == [] and warnings == []

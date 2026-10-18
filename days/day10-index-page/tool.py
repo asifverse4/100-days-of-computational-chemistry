@@ -3,6 +3,8 @@
 Scans days/dayNN-name/ folders, builds INDEX.md (every tool grouped by roadmap phase),
 and checks the repo conventions: each day has a README with a title, **What:** and
 **Why:** lines, a tool.py, and is listed in the main README with a matching streak badge.
+It also checks the agent files: AGENTS.md exists and every skill under .claude/skills or
+.agents/skills has valid Agent Skills frontmatter.
 
 Usage:
     python days/day10-index-page/tool.py            # write INDEX.md
@@ -126,6 +128,84 @@ def render_index(days: list[Day]) -> str:
     return "\n".join(lines) + "\n"
 
 
+SKILL_DIRS = (".claude/skills", ".agents/skills")
+SKILL_FIELDS = {"name", "description", "license", "compatibility", "allowed-tools", "metadata"}
+SKILL_NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+VERSION_RE = re.compile(r'^"\d+(\.\d+)*"$')
+
+
+def parse_frontmatter(text: str) -> tuple[dict[str, str], dict[str, str]] | None:
+    """Top-level keys and the `metadata` block of a SKILL.md, or None if there is no frontmatter."""
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return None
+    try:
+        end = next(i for i in range(1, len(lines)) if lines[i].strip() == "---")
+    except StopIteration:
+        return None
+    fields: dict[str, str] = {}
+    meta: dict[str, str] = {}
+    current = None
+    collecting = False  # a multi-line value (">", "|" or an empty value followed by indented lines)
+    for line in lines[1:end]:
+        top = re.match(r"^([A-Za-z][A-Za-z0-9_-]*):\s*(.*)$", line)
+        if top:
+            current = top[1]
+            value = top[2].strip()
+            collecting = value in (">", "|", ">-", "|-", "") and current != "metadata"
+            fields[current] = "" if value in (">", "|", ">-", "|-") else value
+            continue
+        indented = re.match(r"^\s+(.*)$", line)
+        if indented and current:
+            if current == "metadata":
+                pair = re.match(r"^([A-Za-z][A-Za-z0-9_-]*):\s*(.*)$", indented[1])
+                if pair:
+                    meta[pair[1]] = pair[2].strip()
+            elif collecting:
+                fields[current] = (fields[current] + " " + indented[1].strip()).strip()
+    return fields, meta
+
+
+def check_skill(path: Path, root: Path) -> list[str]:
+    """Check one SKILL.md against the Agent Skills format rules."""
+    rel = path.relative_to(root).as_posix()
+    parsed = parse_frontmatter(path.read_text())
+    if parsed is None:
+        return [f"{rel}: missing YAML frontmatter (the file must start with ---)"]
+    fields, meta = parsed
+    errors = []
+    for key in sorted(set(fields) - SKILL_FIELDS):
+        errors.append(f"{rel}: unknown top-level field {key!r} (allowed: {', '.join(sorted(SKILL_FIELDS))})")
+    name = fields.get("name", "")
+    if not name:
+        errors.append(f"{rel}: missing name")
+    elif not SKILL_NAME_RE.match(name) or len(name) > 64:
+        errors.append(f"{rel}: name {name!r} must be 1-64 lowercase letters, digits and single hyphens")
+    elif name != path.parent.name:
+        errors.append(f"{rel}: name {name!r} must match the folder name {path.parent.name!r}")
+    description = fields.get("description", "")
+    if not description:
+        errors.append(f"{rel}: missing description")
+    elif len(description) > 1024:
+        errors.append(f"{rel}: description is {len(description)} characters, the limit is 1024")
+    if fields.get("metadata", "").startswith("{"):
+        errors.append(f"{rel}: metadata must be a block mapping, not a single-line flow mapping")
+    elif "metadata" in fields and not VERSION_RE.match(meta.get("version", "")):
+        errors.append(f"{rel}: metadata.version must be a quoted number such as \"1.0\"")
+    return errors
+
+
+def check_agent_files(root: Path) -> tuple[list[str], list[str]]:
+    """Return (errors, warnings) for AGENTS.md and the project skills."""
+    errors, warnings = [], []
+    if not (root / "AGENTS.md").is_file():
+        warnings.append("AGENTS.md is missing (instructions for AI coding agents)")
+    for folder in SKILL_DIRS:
+        for skill in sorted((root / folder).glob("*/SKILL.md")):
+            errors += check_skill(skill, root)
+    return errors, warnings
+
+
 def check_main_readme(root: Path, days: list[Day]) -> list[str]:
     """The main README must link every day folder and show the latest day in its streak badge."""
     readme = root / "README.md"
@@ -156,8 +236,9 @@ def main() -> int:
         print(f"error: no days/ folder in {root}", file=sys.stderr)
         return 2
     days = scan_days(root)
-    errors = [e for d in days for e in d.errors] + check_main_readme(root, days)
-    warnings = [w for d in days for w in d.warnings]
+    agent_errors, agent_warnings = check_agent_files(root)
+    errors = [e for d in days for e in d.errors] + check_main_readme(root, days) + agent_errors
+    warnings = [w for d in days for w in d.warnings] + agent_warnings
     for e in errors:
         print(f"[error] {e}")
     for w in warnings:

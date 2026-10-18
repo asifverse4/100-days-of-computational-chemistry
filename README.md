@@ -137,7 +137,7 @@ Still stuck? Open an [issue](https://github.com/asifverse4/100-days-of-computati
 
 - **One folder per day** under `days/dayNN-name/`: a `README.md` (what, why, how to run, limitations), a `tool.py`, a tiny `example/` and a test.
 - **One command starts a new day:** `python tools/new_day.py 5 xtb-output-parser` copies the template, fills in the title and adds a row to the table below.
-- **CI checks every push:** `ruff` for style, a structure check (every day has a README, tool and index entry), then `pytest` once per day folder.
+- **CI checks every push:** `ruff` for style, a structure check (every day has a README, tool and index entry, and agent files are valid), `pytest` once per day folder, and a unit and uncertainty audit of every `tool.py`.
 - **Every tenth day ends in a mini release** that bundles that phase into a small package.
 
 ## Progress
@@ -163,6 +163,9 @@ Still stuck? Open an [issue](https://github.com/asifverse4/100-days-of-computati
 
 ## Contributing
 Issues and PRs are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Working with AI agents
+`AGENTS.md` holds the repo's rules for AI coding agents (the Copilot coding agent, Claude Code, Codex and others), and the issue form "New day or tool" is a ready brief for one. The project skill `.claude/skills/new-day/` lists the steps for building a day. [`docs/agent-skills.md`](docs/agent-skills.md) shows which of the K-Dense [Scientific Agent Skills](https://github.com/K-Dense-AI/scientific-agent-skills) fit each phase of the roadmap and how to install them safely. CI also runs that collection's unit and uncertainty auditor on every tool.
 
 ## Citation
 If a tool helps your work, please cite it via [`CITATION.cff`](CITATION.cff). GitHub's "Cite this repository" button gives you BibTeX and APA.

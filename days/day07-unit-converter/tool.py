@@ -15,7 +15,10 @@ import re
 import sys
 from pathlib import Path
 
-# CODATA 2018 (exact SI values except the hartree energy)
+# h, c, e, N_A and k_B are exact: their values define the SI units since the 2019 redefinition, so their
+# standard uncertainty is zero. Only the hartree energy is a measured value (CODATA 2018: 4.3597447222071(85)e-18 J;
+# CODATA 2022 differs by 2.5e-13 relative, far below anything this tool reports).
+# audit-units: ignore-file CONST001 -- reviewed: exact SI-defining constants, see the comment above
 H = 6.62607015e-34  # Planck constant, J s
 C = 299792458.0  # speed of light, m/s
 E_CHARGE = 1.602176634e-19  # elementary charge, C (1 eV in J)

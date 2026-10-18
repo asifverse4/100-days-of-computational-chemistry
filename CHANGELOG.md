@@ -1,5 +1,11 @@
 # Changelog
 
+## Repo tooling
+- `AGENTS.md`, the `new-day` project skill, a pull request template and a "New day or tool" issue form, so AI coding agents follow the repo's rules.
+- `docs/agent-skills.md`: which K-Dense Scientific Agent Skills fit each phase, and how to install them safely.
+- CI audit of every `tool.py` with the pinned `uncertainty-and-units` auditor. It found a real problem in Day 17 (fit uncertainties about 43% too small in a simulation), which is fixed: raw-count patterns are now fitted with counting-statistics weights.
+- The Day 10 check now validates `AGENTS.md` and the format of any project skill.
+
 ## Phase 2: Nanomaterial and spectroscopy data (Days 11-20, in progress)
 - Day 11: UV-vis plotter with peak detection.
 - Day 12: Tauc plot and optical band gap calculator.

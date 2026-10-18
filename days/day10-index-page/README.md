@@ -13,9 +13,9 @@ Check without writing. This is what CI runs, and it exits with 1 if anything is 
 python days/day10-index-page/tool.py --check
 ```
 ```
-checked 9 days: 0 errors, 0 warnings
+checked 16 days: 0 errors, 0 warnings
 ```
-(`example/check_output.txt` is the real output on this repository. Day 1 is the template, so 9 day folders plus Day 1 make the 10 days in the index.)
+(`example/check_output.txt` is the real output on this repository when it was written. Day 1 is the template, so the 16 day folders from Day 2 on plus Day 1 make the 17 days in the index.)
 The generated page is [`INDEX.md`](../../INDEX.md).
 
 | Option | Meaning |
@@ -31,9 +31,10 @@ Errors (these fail CI):
 - the README has no `**What:**` or `**Why:**` line, or still has the template placeholder text
 - two folders use the same day number
 - the main `README.md` does not link a day folder, or its streak badge does not show the latest day
+- a project skill (`.claude/skills/*/SKILL.md` or `.agents/skills/*/SKILL.md`) breaks the Agent Skills format: no frontmatter, an unknown field, a name that is not lowercase with single hyphens or does not match its folder, a missing or over-long (more than 1024 characters) description, or a `metadata.version` that is not a quoted number
 - `INDEX.md` is out of date (only with `--check`)
 
-Warnings (these are shown but do not fail CI): no files in `example/`, or no `test_*.py`.
+Warnings (these are shown but do not fail CI): no files in `example/`, no `test_*.py`, or no `AGENTS.md`.
 
 ## Method
 - The title, What line and test presence are read from each folder. Table text is shortened at a word boundary and `|` is escaped.

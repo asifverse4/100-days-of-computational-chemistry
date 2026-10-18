@@ -17,3 +17,22 @@ jobs:
           for d in days/*/; do
             pytest -q --no-header "$d" || [ $? -eq 5 ] || exit 1
           done
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch the unit and uncertainty auditor (pinned commit, reviewed)
+        run: |
+          mkdir /tmp/skills && cd /tmp/skills
+          git init -q
+          git remote add origin https://github.com/K-Dense-AI/scientific-agent-skills.git
+          git fetch -q --depth 1 origin a1043ef544e3a100c28e70a736b6cf32554d0677
+          git checkout -q FETCH_HEAD -- skills/uncertainty-and-units/scripts
+      - name: Audit every tool.py for unit and uncertainty defects
+        run: |
+          args=""
+          for f in days/*/tool.py; do args="$args --input $f"; done
+          python /tmp/skills/skills/uncertainty-and-units/scripts/audit_units.py $args --fail-on high
