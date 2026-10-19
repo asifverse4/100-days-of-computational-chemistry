@@ -14,6 +14,7 @@
 - Day 15: Stokes shift calculator (nm, cm-1, eV) with band selection.
 - Day 16: FTIR peak picker with functional-group suggestions.
 - Day 17: XRD Scherrer crystallite size calculator with Williamson-Hall strain separation.
+- Day 18: TEM particle size distribution (histogram, lognormal fit, confidence intervals and fit checks).
 
 ## Phase 1: Foundations (Days 1-10)
 - Day 1: repo setup with license, README, requirements and the day template.

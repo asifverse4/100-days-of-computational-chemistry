@@ -8,7 +8,7 @@
 Python · RDKit · xTB · free and open source (MIT)
 
 [![CI](https://github.com/asifverse4/100-days-of-computational-chemistry/actions/workflows/ci.yml/badge.svg)](https://github.com/asifverse4/100-days-of-computational-chemistry/actions/workflows/ci.yml)
-![streak](https://img.shields.io/badge/streak-day%2017%2F100-blue)
+![streak](https://img.shields.io/badge/streak-day%2018%2F100-blue)
 ![python](https://img.shields.io/badge/python-3.11%2B-3776AB)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -34,6 +34,7 @@ Each day adds one tool you can run in a minute: spectroscopy, DFT/xTB, docking/M
 | 15 | [Stokes shift](days/day15-stokes-shift/) | Stokes shift in nm, cm-1 and eV from two maxima, from spectra, or for a table of samples | `python tool.py 345 450` |
 | 16 | [FTIR peak picker](days/day16-ftir-peak-picker/) | Find FTIR peaks and list candidate functional groups from a correlation table | `python tool.py example/synthetic_ftir.csv -o ftir.png` |
 | 17 | [XRD Scherrer](days/day17-xrd-scherrer/) | Fit XRD peaks and get crystallite size (Scherrer) and strain (Williamson-Hall) with uncertainties | `python tool.py example/synthetic_xrd.csv --inst-fwhm 0.08 --williamson-hall` |
+| 18 | [TEM size distribution](days/day18-tem-size-distribution/) | Histogram and lognormal fit of particle sizes with mean, geometric mean and SD, confidence intervals and fit checks | `python tool.py example/synthetic_sizes.csv --column diameter_nm -o sizes.png` |
 
 New tools land every day. The generated list of every tool is [INDEX.md](INDEX.md), and the full plan is in [ROADMAP.md](ROADMAP.md).
 
@@ -105,7 +106,8 @@ python tool.py example/input.smi -o out.csv   # a list, writes a CSV
 | get the Stokes shift from absorption and emission maxima | [Day 15](days/day15-stokes-shift/) |
 | pick FTIR peaks and get candidate functional groups | [Day 16](days/day16-ftir-peak-picker/) |
 | get a crystallite size or strain from an XRD pattern | [Day 17](days/day17-xrd-scherrer/) |
-| TEM size distributions and spectrum baselines | Days 18-19, coming |
+| get a particle size distribution from TEM measurements | [Day 18](days/day18-tem-size-distribution/) |
+| baseline correction and smoothing of spectra | Day 19, coming |
 | set up ORCA / Psi4 jobs and read DFT results | Days 21-30, coming |
 | dock ligands and analyze MD | Days 31-40, coming |
 
@@ -160,6 +162,7 @@ Still stuck? Open an [issue](https://github.com/asifverse4/100-days-of-computati
 | 15 | Stokes Shift | [`days/day15-stokes-shift/`](days/day15-stokes-shift/) |
 | 16 | Ftir Peak Picker | [`days/day16-ftir-peak-picker/`](days/day16-ftir-peak-picker/) |
 | 17 | Xrd Scherrer | [`days/day17-xrd-scherrer/`](days/day17-xrd-scherrer/) |
+| 18 | TEM Size Distribution | [`days/day18-tem-size-distribution/`](days/day18-tem-size-distribution/) |
 
 ## Contributing
 Issues and PRs are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
