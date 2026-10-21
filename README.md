@@ -2,6 +2,8 @@
   <img src="docs/media/banner.svg" alt="100 Days of Computational Chemistry" width="100%">
 </p>
 
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/asifverse4/badge.svg)](https://hub.xerj.org/contributors/asifverse4)
+
 # 100 Days of Computational Chemistry
 
 **One small, working tool per day for chemistry students and researchers**  
