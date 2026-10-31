@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spectra-kit"
+version = "0.1.0"
+description = "Spectroscopy and materials characterization tools: UV-vis, Tauc band gap, quantum yield, photoluminescence, Stokes shift, FTIR, XRD Scherrer size, TEM size distributions and baseline correction"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Asif Raza" }]
+keywords = ["spectroscopy", "UV-vis", "FTIR", "XRD", "Scherrer", "Tauc", "quantum yield", "chemistry"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Chemistry",
+]
+dependencies = ["numpy", "scipy", "matplotlib>=3.5"]
+
+[project.urls]
+Repository = "https://github.com/asifverse4/100-days-of-computational-chemistry"
+
+[project.scripts]
+spectra = "spectra_kit.cli:main"
+spectra-uvvis = "spectra_kit.uvvis:main"
+spectra-tauc = "spectra_kit.tauc:main"
+spectra-qy = "spectra_kit.quantum_yield:main"
+spectra-pl = "spectra_kit.pl_overlay:main"
+spectra-stokes = "spectra_kit.stokes:main"
+spectra-ftir = "spectra_kit.ftir:main"
+spectra-xrd = "spectra_kit.xrd:main"
+spectra-tem = "spectra_kit.tem_sizes:main"
+spectra-baseline = "spectra_kit.baseline:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+spectra_kit = ["examples/*/*.csv"]

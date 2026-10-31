@@ -10,6 +10,7 @@
 - [ ] Reference data cite their source, and unchecked entries are tagged
 - [ ] Limitations section says what the tool does not check
 - [ ] README tables and `CHANGELOG.md` are updated
+- [ ] If a day inside `spectra-kit` changed: `python spectra-kit/sync.py` was run and committed
 
 ## What I ran, and what I did not verify
 <!-- Be specific: for example "not tested on real instrument exports". -->

@@ -17,6 +17,10 @@ jobs:
           for d in days/*/; do
             pytest -q --no-header "$d" || [ $? -eq 5 ] || exit 1
           done
+      - name: Release check for spectra-kit (sync, build, wheel, fresh environment, commands, tests)
+        run: |
+          pip install build
+          python days/day20-spectra-kit-release/tool.py --allow-existing-tag
   audit:
     runs-on: ubuntu-latest
     steps:

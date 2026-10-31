@@ -43,6 +43,7 @@ Title `# Day N: Title`, `**What:**`, `**Why:**`, then Install, Usage (real outpu
 ## 7. Repo files
 - Add rows to the tables in `README.md`, and a line to `CHANGELOG.md`.
 - `python days/day10-index-page/tool.py`, then `python days/day10-index-page/tool.py --check`.
+- If the day belongs to a packaged release (the tools of Days 11 to 19 are in `spectra-kit/`), run `python spectra-kit/sync.py` and commit the result.
 
 ## 8. Verify
 ```bash

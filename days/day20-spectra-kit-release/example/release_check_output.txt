@@ -1,0 +1,26 @@
+[PASS] version format: spectra-kit 0.1.0
+[PASS] __version__ matches pyproject: 0.1.0
+[PASS] README is present
+[PASS] license file is present
+[PASS] console scripts are declared: 10 commands
+[PASS] CHANGELOG mentions this release
+[PASS] git tag spectra-kit-v0.1.0 is free
+[PASS] copies are in step with the daily tools
+[PASS] build the wheel and the source distribution: spectra_kit-0.1.0-py3-none-any.whl, spectra_kit-0.1.0.tar.gz
+[PASS] wheel metadata has the right name and version
+[PASS] wheel carries the license
+[PASS] wheel entry points match pyproject: 10 commands
+[PASS] wheel has no tests or build scripts
+[PASS] wheel includes its data files: 14 CSV files
+[PASS] source distribution has pyproject, license and README
+[PASS] source distribution has no tests that cannot run outside the repository
+[PASS] create a fresh virtual environment: dependencies taken from this Python
+[PASS] install the wheel: spectra_kit-0.1.0-py3-none-any.whl
+[PASS] every installed command runs (--help), 10 commands
+[PASS] package tests pass against the installed wheel: 36 passed in 13.81s
+
+20 checks, 0 failed
+spectra-kit 0.1.0 is ready to tag:
+  git tag -a spectra-kit-v0.1.0 -m "spectra-kit 0.1.0"
+  git push origin spectra-kit-v0.1.0
+  then on GitHub: Releases > Draft a new release > choose spectra-kit-v0.1.0, and paste the spectra-kit v0.1.0 notes from CHANGELOG.md

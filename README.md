@@ -10,7 +10,7 @@
 Python · RDKit · xTB · free and open source (MIT)
 
 [![CI](https://github.com/asifverse4/100-days-of-computational-chemistry/actions/workflows/ci.yml/badge.svg)](https://github.com/asifverse4/100-days-of-computational-chemistry/actions/workflows/ci.yml)
-![streak](https://img.shields.io/badge/streak-day%2019%2F100-blue)
+![streak](https://img.shields.io/badge/streak-day%2020%2F100-blue)
 ![python](https://img.shields.io/badge/python-3.11%2B-3776AB)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -38,6 +38,7 @@ Each day adds one tool you can run in a minute: spectroscopy, DFT/xTB, docking/M
 | 17 | [XRD Scherrer](days/day17-xrd-scherrer/) | Fit XRD peaks and get crystallite size (Scherrer) and strain (Williamson-Hall) with uncertainties | `python tool.py example/synthetic_xrd.csv --inst-fwhm 0.08 --williamson-hall` |
 | 18 | [TEM size distribution](days/day18-tem-size-distribution/) | Histogram and lognormal fit of particle sizes with mean, geometric mean and SD, confidence intervals and fit checks | `python tool.py example/synthetic_sizes.csv --column diameter_nm -o sizes.png` |
 | 19 | [Baseline and smoothing](days/day19-baseline-smoothing/) | Smooth spectra and remove baselines (polynomial, asymmetric least squares, SNIP, anchors) with checks that the peaks survive | `python tool.py example/synthetic_spectrum.csv --baseline asls --baseline-lambda 1e7 -o corrected.png` |
+| 20 | [spectra-kit release](days/day20-spectra-kit-release/) | Mini release spectra-kit v0.1.0 (Days 11 to 19 as commands) and the release checker that builds, inspects, installs and tests it | `python days/day20-spectra-kit-release/tool.py` |
 
 New tools land every day. The generated list of every tool is [INDEX.md](INDEX.md), and the full plan is in [ROADMAP.md](ROADMAP.md).
 
@@ -111,6 +112,7 @@ python tool.py example/input.smi -o out.csv   # a list, writes a CSV
 | get a crystallite size or strain from an XRD pattern | [Day 17](days/day17-xrd-scherrer/) |
 | get a particle size distribution from TEM measurements | [Day 18](days/day18-tem-size-distribution/) |
 | smooth a spectrum and remove its baseline | [Day 19](days/day19-baseline-smoothing/) |
+| install the spectroscopy tools of Days 11 to 19 as commands | [`spectra-kit`](spectra-kit/) (`pip install ./spectra-kit`) |
 | set up ORCA / Psi4 jobs and read DFT results | Days 21-30, coming |
 | dock ligands and analyze MD | Days 31-40, coming |
 
@@ -145,6 +147,13 @@ Still stuck? Open an [issue](https://github.com/asifverse4/100-days-of-computati
 - **CI checks every push:** `ruff` for style, a structure check (every day has a README, tool and index entry, and agent files are valid), `pytest` once per day folder, and a unit and uncertainty audit of every `tool.py`.
 - **Every tenth day ends in a mini release** that bundles that phase into a small package.
 
+## Releases
+| Release | What it is |
+|---|---|
+| [`spectra-kit` v0.1.0](spectra-kit/) | the tools of Days 11 to 19 as installable commands (`spectra-uvvis`, `spectra-tauc`, `spectra-ftir`, ..., and `spectra`). `pip install ./spectra-kit`. Checked by Day 20's release check |
+
+The package copies the daily tools and CI fails if a copy is out of date. After changing a tool in a released package, run `python spectra-kit/sync.py`.
+
 ## Progress
 | Day | Topic | Folder |
 |-----|-------|--------|
@@ -167,6 +176,7 @@ Still stuck? Open an [issue](https://github.com/asifverse4/100-days-of-computati
 | 17 | Xrd Scherrer | [`days/day17-xrd-scherrer/`](days/day17-xrd-scherrer/) |
 | 18 | TEM Size Distribution | [`days/day18-tem-size-distribution/`](days/day18-tem-size-distribution/) |
 | 19 | Baseline Smoothing | [`days/day19-baseline-smoothing/`](days/day19-baseline-smoothing/) |
+| 20 | spectra-kit Release | [`days/day20-spectra-kit-release/`](days/day20-spectra-kit-release/) |
 
 ## Contributing
 Issues and PRs are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).

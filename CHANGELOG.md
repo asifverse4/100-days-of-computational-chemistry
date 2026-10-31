@@ -16,6 +16,14 @@
 - Day 17: XRD Scherrer crystallite size calculator with Williamson-Hall strain separation.
 - Day 18: TEM particle size distribution (histogram, lognormal fit, confidence intervals and fit checks).
 - Day 19: baseline correction and smoothing toolkit for spectra.
+- Day 20: mini release **spectra-kit v0.1.0**, which packages Days 11 to 19 as installable commands (`spectra-uvvis`, `spectra-tauc`, `spectra-qy`, `spectra-pl`, `spectra-stokes`, `spectra-ftir`, `spectra-xrd`, `spectra-tem`, `spectra-baseline`, and `spectra` for all of them). Also a release checker (`days/day20-spectra-kit-release`).
+
+### spectra-kit v0.1.0 release notes
+- Nine spectroscopy and materials tools from Days 11 to 19, installed with `pip install ./spectra-kit` (not published on PyPI).
+- The package copies the daily tools. `spectra-kit/sync.py --check` in CI fails if a copy is out of date.
+- Synthetic example files ship with the package: `spectra examples` copies them.
+- Checked by `days/day20-spectra-kit-release/tool.py`: build, wheel and sdist contents, a fresh virtual environment, every command, and the package tests.
+- Tested on Linux with Python 3.12. Windows and macOS are untested.
 
 ## Phase 1: Foundations (Days 1-10)
 - Day 1: repo setup with license, README, requirements and the day template.
